@@ -1,5 +1,5 @@
 {
-  "domain": "custom_components/ha-minibus",
+  "domain": "ha-minibus",
   "name": "HA Minibus",
   "codeowners": [
     "@ctchu"
