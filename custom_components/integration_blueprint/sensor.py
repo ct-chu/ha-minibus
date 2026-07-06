@@ -3,7 +3,7 @@
 from datetime import timedelta
 import logging
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     CoordinatorEntity,
@@ -11,6 +11,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
+import homeassistant.util.dt as dt_util
 
 from .const import DOMAIN, API_BASE_URL
 
@@ -31,10 +32,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
             res = await resp.json()
             eta_data = []
 
-            # FIXED: Safely process data structure
             data_node = res.get("data", [])
             if isinstance(data_node, dict):
-                # Fallback in case ETA wraps data in a dictionary
                 data_node = data_node.get("eta", [])
 
             if isinstance(data_node, list):
@@ -46,9 +45,11 @@ async def async_setup_entry(hass, entry, async_add_entities):
                         ):
                             eta_data = item.get("eta", [])
                             break
-            return eta_data
 
-    # Poll the endpoint every 60 seconds
+            # Return both the ETA payload and the current localized timestamp
+            return {"eta": eta_data, "last_updated": dt_util.now()}
+
+    # Poll the endpoint every 60 seconds automatically
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
@@ -61,6 +62,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     entities = [
         GmbDirectionSensor(entry),
+        GmbLastUpdatedSensor(coordinator, entry),
         GmbEtaSensor(coordinator, entry, 0),
         GmbEtaSensor(coordinator, entry, 1),
         GmbEtaSensor(coordinator, entry, 2),
@@ -107,6 +109,41 @@ class GmbDirectionSensor(SensorEntity):
         )
 
 
+class GmbLastUpdatedSensor(CoordinatorEntity, SensorEntity):
+    """Sensor to display the timestamp of the last API response update."""
+
+    def __init__(self, coordinator, entry):
+        super().__init__(coordinator)
+        self._entry = entry
+
+        self._attr_unique_id = f"gmb_updated_{entry.data['stop_id']}_{entry.data['route_id']}_{entry.data['route_seq']}"
+        self._attr_has_entity_name = True
+        self._attr_device_class = SensorDeviceClass.TIMESTAMP
+
+        lang = entry.data["language"]
+        if lang in ["tc", "sc"]:
+            self._attr_name = "最後更新"
+        else:
+            self._attr_name = "Last Updated"
+
+    @property
+    def native_value(self):
+        """Return the precise timestamp of the last successful fetch."""
+        if self.coordinator.data and "last_updated" in self.coordinator.data:
+            return self.coordinator.data["last_updated"]
+        return None
+
+    @property
+    def device_info(self):
+        return DeviceInfo(
+            identifiers={(DOMAIN, str(self._entry.data["stop_id"]))},
+            name=self._entry.data["stop_name"],
+            manufacturer="Hong Kong GMB",
+            model=f"Route {self._entry.data['route_code']}",
+            entry_type=DeviceEntryType.SERVICE,
+        )
+
+
 class GmbEtaSensor(CoordinatorEntity, SensorEntity):
     """Sensor to display the ETA values."""
 
@@ -122,7 +159,10 @@ class GmbEtaSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self):
-        etas = self.coordinator.data
+        if not self.coordinator.data or "eta" not in self.coordinator.data:
+            return "N/A"
+
+        etas = self.coordinator.data["eta"]
         if isinstance(etas, list) and len(etas) > self._index:
             eta_entry = etas[self._index]
             if isinstance(eta_entry, dict):
