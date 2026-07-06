@@ -4,7 +4,7 @@ from logging import Logger, getLogger
 
 LOGGER: Logger = getLogger(__package__)
 
-DOMAIN = "custom_components/ha-minibus"
+DOMAIN = "ha-minibus"
 API_BASE_URL = "https://data.etagmb.gov.hk"
 
 REGIONS = {
