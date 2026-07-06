@@ -44,8 +44,10 @@ class GMBConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 async with session.get(url) as resp:
                     res = await resp.json()
-                    if "data" in res and res["data"]:
-                        self.route_data = res["data"]
+                    data_node = res.get("data", [])
+
+                    if isinstance(data_node, list) and data_node:
+                        self.route_data = data_node
                         return await self.async_step_direction()
                     else:
                         errors["base"] = "route_not_found"
@@ -72,24 +74,43 @@ class GMBConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             session = async_get_clientsession(self.hass)
             url = f"{API_BASE_URL}/route-stop/{self.route_id}/{self.route_seq}"
+
             async with session.get(url) as resp:
                 res = await resp.json()
                 self.stops_map = {}
-                for stop in res.get("data", []):
-                    stop_id = stop["stop_id"]
-                    # Fallback to English if the chosen language is unexpectedly missing
-                    stop_name = stop.get(
-                        f"name_{self.language}", stop.get("name_en", f"Stop {stop_id}")
-                    )
-                    self.stops_map[str(stop_id)] = stop_name
+
+                # FIXED: Handle dictionary wrapper around route_stops
+                data_node = res.get("data", [])
+                if isinstance(data_node, dict):
+                    stops_list = data_node.get("route_stops", [])
+                else:
+                    stops_list = data_node
+
+                # Safely iterate and parse
+                for stop in stops_list:
+                    if isinstance(stop, dict):
+                        stop_id = stop.get("stop_id")
+                        if stop_id is not None:
+                            # Fallback to English if the chosen language is unexpectedly missing
+                            stop_name = stop.get(
+                                f"name_{self.language}",
+                                stop.get("name_en", f"Stop {stop_id}"),
+                            )
+                            self.stops_map[str(stop_id)] = stop_name
+
                 return await self.async_step_stop()
 
         self.directions_map = {}
         for route in self.route_data:
-            r_id = route["route_id"]
+            if not isinstance(route, dict):
+                continue
+
+            r_id = route.get("route_id")
             for d in route.get("directions", []):
-                r_seq = d["route_seq"]
-                dest = d.get(f"dest_{self.language}", d.get("dest_en"))
+                if not isinstance(d, dict):
+                    continue
+                r_seq = d.get("route_seq")
+                dest = d.get(f"dest_{self.language}", d.get("dest_en", "Unknown"))
                 label = f"Route {r_id} (Seq {r_seq}) -> {dest}"
                 self.directions_map[label] = {
                     "route_id": r_id,
