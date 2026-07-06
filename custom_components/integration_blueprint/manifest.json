@@ -5,8 +5,8 @@
     "@ctchu"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/ctchu/custom_components/ha-minibus",
+  "documentation": "https://github.com/ct-chu/ha-minibus",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/ctchu/custom_components/ha-minibus/issues",
+  "issue_tracker": "https://github.com/ct-chu/ha-minibus/issues",
   "version": "0.1.0"
 }

@@ -5,4 +5,16 @@ from logging import Logger, getLogger
 LOGGER: Logger = getLogger(__package__)
 
 DOMAIN = "custom_components/ha-minibus"
-ATTRIBUTION = "Data provided by http://jsonplaceholder.typicode.com/"
+API_BASE_URL = "https://data.etagmb.gov.hk"
+
+REGIONS = {
+    "NT": "New Territories",
+    "KLN": "Kowloon",
+    "HKI": "Hong Kong Island",
+}
+
+LANGUAGES = {
+    "tc": "Traditional Chinese",
+    "sc": "Simplified Chinese",
+    "en": "English",
+}

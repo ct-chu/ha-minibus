@@ -2,20 +2,29 @@
     "config": {
         "step": {
             "user": {
-                "description": "If you need help with the configuration have a look here: {documentation_url}",
+                "title": "HK GMB Route Details",
                 "data": {
-                    "username": "Username",
-                    "password": "Password"
+                    "region": "Region",
+                    "route_code": "Route Code",
+                    "language": "Display Language"
+                }
+            },
+            "direction": {
+                "title": "Select Direction",
+                "data": {
+                    "direction": "Direction"
+                }
+            },
+            "stop": {
+                "title": "Select Stop",
+                "data": {
+                    "stop_id": "Stop"
                 }
             }
         },
         "error": {
-            "auth": "Username/Password is wrong.",
-            "connection": "Unable to connect to the server.",
-            "unknown": "Unknown error occurred."
-        },
-        "abort": {
-            "already_configured": "This entry is already configured."
+            "route_not_found": "Route not found.",
+            "cannot_connect": "Failed to connect to the Data.gov.hk API."
         }
     }
 }
