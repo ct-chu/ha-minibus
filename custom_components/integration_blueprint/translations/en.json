@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "title": "HK GMB Route Details",
+                "title": "ha-minibus",
                 "data": {
                     "region": "Region",
                     "route_code": "Route Code",
