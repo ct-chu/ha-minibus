@@ -1,12 +1,12 @@
 {
-  "domain": "integration_blueprint",
-  "name": "Integration blueprint",
+  "domain": "custom_components/ha-minibus",
+  "name": "HA Minibus",
   "codeowners": [
-    "@ludeeus"
+    "@ctchu"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/ludeeus/integration_blueprint",
+  "documentation": "https://github.com/ctchu/custom_components/ha-minibus",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/ludeeus/integration_blueprint/issues",
+  "issue_tracker": "https://github.com/ctchu/custom_components/ha-minibus/issues",
   "version": "0.1.0"
 }
