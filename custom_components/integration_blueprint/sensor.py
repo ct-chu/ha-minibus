@@ -103,7 +103,7 @@ class GmbDirectionSensor(SensorEntity):
         return DeviceInfo(
             identifiers={(DOMAIN, str(self._entry.data["stop_id"]))},
             name=self._entry.data["stop_name"],
-            manufacturer="Hong Kong GMB",
+            manufacturer="HK Minbus",
             model=f"Route {self._entry.data['route_code']}",
             entry_type=DeviceEntryType.SERVICE,
         )
@@ -138,7 +138,7 @@ class GmbLastUpdatedSensor(CoordinatorEntity, SensorEntity):
         return DeviceInfo(
             identifiers={(DOMAIN, str(self._entry.data["stop_id"]))},
             name=self._entry.data["stop_name"],
-            manufacturer="Hong Kong GMB",
+            manufacturer="HK Minbus",
             model=f"Route {self._entry.data['route_code']}",
             entry_type=DeviceEntryType.SERVICE,
         )
@@ -177,7 +177,7 @@ class GmbEtaSensor(CoordinatorEntity, SensorEntity):
         return DeviceInfo(
             identifiers={(DOMAIN, str(self._entry.data["stop_id"]))},
             name=self._entry.data["stop_name"],
-            manufacturer="Hong Kong GMB",
+            manufacturer="HK Minbus",
             model=f"Route {self._entry.data['route_code']}",
             entry_type=DeviceEntryType.SERVICE,
         )
